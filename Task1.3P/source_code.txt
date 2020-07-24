@@ -6,42 +6,32 @@ volatile boolean ledOn = false;
 void setup()
 {
   Serial.begin(9600);
+  
   pinMode(A0, INPUT);
   pinMode(6, INPUT);
   pinMode(12, OUTPUT);
   pinMode(3, OUTPUT);
   pinMode(4, OUTPUT);
   pinMode(5, OUTPUT);
+  
   pinMode(interruptPin, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(interruptPin), blink, CHANGE);
 }
 
 void loop()
 {
-  // set threshold distance to activate LEDs
+  temperatureMeasurement();
+  distanceMeasurement();
+}
+
+void distanceMeasurement()
+{
+	// set threshold distance to activate LEDs
   disThreshold = 350;
   
   // measure the ping time in cm
   int cm = 0.01723 * readUltrasonicDistance(7, 6);
-  
-  // set threshold temperature to activate LEDs
-  int baselineTemp = 40;
-  
-  // measure temperature in Celsius
-  celsius = map(((analogRead(A0) - 20) * 3.04), 0, 1023, -40, 125);
-
-  if (celsius < baselineTemp) 
-  {
-    digitalWrite(11, HIGH);
-    digitalWrite(12, LOW);
-  }
-  else 
-  {
-    digitalWrite(11, LOW);
-    digitalWrite(12, HIGH);
-  }
-  delay(1000); // Wait for 1000 millisecond(s)
-  
+    
   if (cm > disThreshold)
   {
     digitalWrite(3, LOW);
@@ -72,34 +62,13 @@ void loop()
     digitalWrite(4, LOW);
     digitalWrite(5, HIGH);
   }
-  delay(100); // Wait for 100 millisecond(s)
-}
-
-//lights go off when interrupted 
-void blink() {
-  if (ledOn)
-  {
-    ledOn = true;
-    digitalWrite(12, HIGH);
-    digitalWrite(11, HIGH);
-    digitalWrite(3, HIGH);
-    digitalWrite(4, HIGH);
-    digitalWrite(5, HIGH);
-  }else
-  {
-    ledOn = false;
-    digitalWrite(12, LOW);
-    digitalWrite(11, LOW);
-    digitalWrite(3, LOW);
-    digitalWrite(4, LOW);
-    digitalWrite(5, LOW);
-  }
-  delay(2000);
+  delay(100); // Wait for 100 millisecond(s)	
 }
 
 long readUltrasonicDistance(int triggerPin, int echoPin)
 {
-  pinMode(triggerPin, OUTPUT);  // Clear the trigger
+  // Clear the trigger
+  pinMode(triggerPin, OUTPUT);  
   digitalWrite(triggerPin, LOW);
   delayMicroseconds(2);
   
@@ -111,4 +80,49 @@ long readUltrasonicDistance(int triggerPin, int echoPin)
   
   // Reads the echo pin, and returns the sound wave travel time in microseconds
   return pulseIn(echoPin, HIGH);
+}
+
+void temperatureMeasurement()
+{
+  // set threshold temperature to activate LEDs
+  int baselineTemp = 40;
+  
+  // measure temperature in Celsius
+  celsius = map(((analogRead(A0) - 20) * 3.04), 0, 1023, -40, 125);
+  
+  if (celsius < baselineTemp) 
+  {
+    ledOn = true;
+    digitalWrite(11, ledOn);
+    digitalWrite(12, LOW);
+  }
+  else 
+  {
+    digitalWrite(11, LOW);
+    digitalWrite(12, ledOn);
+  }
+  delay(1000); // Wait for 1000 millisecond(s)
+}
+
+// if button has been pressed, ledOn = true and led lights activate
+void blink() {
+  if (ledOn)
+  {
+    ledOn = true;
+    digitalWrite(12, HIGH);
+    digitalWrite(11, HIGH);
+    digitalWrite(3, HIGH);
+    digitalWrite(4, HIGH);
+    digitalWrite(5, HIGH);
+    Serial.println("Interruption occurred");
+  }else
+  {
+    ledOn = false;
+    digitalWrite(12, LOW);
+    digitalWrite(11, LOW);
+    digitalWrite(3, LOW);
+    digitalWrite(4, LOW);
+    digitalWrite(5, LOW);
+  }
+  delay(2000);
 }
