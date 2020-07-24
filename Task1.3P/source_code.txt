@@ -101,7 +101,7 @@ void temperatureMeasurement()
     digitalWrite(11, LOW);
     digitalWrite(12, ledOn);
   }
-  delay(1000); // Wait for 1000 millisecond(s)
+  delay(2000); // Wait for 2000 millisecond(s)
 }
 
 // if button has been pressed, ledOn = true and led lights activate
