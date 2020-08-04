@@ -1,6 +1,7 @@
 int celsius = 0;
 int disThreshold = 0;
-const int interruptPin= 2;
+const int interruptPin1= 2;
+const int interruptPin2 = 3;
 volatile boolean ledOn = false;
 
 void setup()
@@ -10,12 +11,15 @@ void setup()
   pinMode(A0, INPUT);
   pinMode(6, INPUT);
   pinMode(12, OUTPUT);
-  pinMode(3, OUTPUT);
+  pinMode(13, OUTPUT);
   pinMode(4, OUTPUT);
   pinMode(5, OUTPUT);
   
-  pinMode(interruptPin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(interruptPin), blink, CHANGE);
+  pinMode(interruptPin1, INPUT_PULLUP);
+  pinMode(interruptPin2, INPUT_PULLUP);
+  
+  attachInterrupt(digitalPinToInterrupt(interruptPin1), blink1, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(interruptPin2), blink2, CHANGE);
 }
 
 void loop()
@@ -26,7 +30,7 @@ void loop()
 
 void distanceMeasurement()
 {
-	// set threshold distance to activate LEDs
+  // set threshold distance to activate LEDs
   disThreshold = 350;
   
   // measure the ping time in cm
@@ -34,31 +38,31 @@ void distanceMeasurement()
     
   if (cm > disThreshold)
   {
-    digitalWrite(3, LOW);
+    digitalWrite(13, LOW);
     digitalWrite(4, LOW);
     digitalWrite(5, LOW);
   }
   if (cm <= disThreshold && cm > disThreshold - 100) 
   {    
-    digitalWrite(3, HIGH);
+    digitalWrite(13, HIGH);
     digitalWrite(4, LOW);
     digitalWrite(5, LOW);
   }
   if (cm <= disThreshold - 100 && cm > disThreshold - 250) 
   {
-    digitalWrite(3, LOW);
+    digitalWrite(13, LOW);
     digitalWrite(4, HIGH);
     digitalWrite(5, LOW);
   }
   if (cm <= disThreshold - 250 && cm > disThreshold - 350) 
   {
-    digitalWrite(3, LOW);
+    digitalWrite(13, LOW);
     digitalWrite(4, LOW);
     digitalWrite(5, HIGH);
   }
   if (cm <= disThreshold - 350) 
   {
-    digitalWrite(3, LOW);
+    digitalWrite(13, LOW);
     digitalWrite(4, LOW);
     digitalWrite(5, HIGH);
   }
@@ -74,7 +78,7 @@ long readUltrasonicDistance(int triggerPin, int echoPin)
   
   // Sets the trigger pin to HIGH state for 10 microseconds
   digitalWrite(triggerPin, HIGH);
-  delayMicroseconds(10);
+  delayMicroseconds(3);
   digitalWrite(triggerPin, LOW);
   pinMode(echoPin, INPUT);
   
@@ -105,22 +109,34 @@ void temperatureMeasurement()
 }
 
 // if button has been pressed, ledOn = true and led lights activate
-void blink() {
+void blink1() {
   if (ledOn)
   {
     ledOn = true;
     digitalWrite(12, HIGH);
     digitalWrite(11, HIGH);
-    digitalWrite(3, HIGH);
-    digitalWrite(4, HIGH);
-    digitalWrite(5, HIGH);
     Serial.println("Interruption occurred");
   }else
   {
     ledOn = false;
     digitalWrite(12, LOW);
     digitalWrite(11, LOW);
-    digitalWrite(3, LOW);
+  }
+  delay(2000);
+}
+
+void blink2() {
+  if (ledOn)
+  {
+    ledOn = true;
+    digitalWrite(13, HIGH);
+    digitalWrite(4, HIGH);
+    digitalWrite(5, HIGH);
+    Serial.println("Interruption occurred");
+  }else
+  {
+    ledOn = false;
+    digitalWrite(13, LOW);
     digitalWrite(4, LOW);
     digitalWrite(5, LOW);
   }
